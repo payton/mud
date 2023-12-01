@@ -1,5 +1,61 @@
 # @latticexyz/store-sync
 
+## 2.0.0-next.15
+
+### Major Changes
+
+- 504e25dc: `lastUpdatedBlockNumber` columns in Postgres storage adapters are no longer nullable
+- e48fb3b0: Renamed singleton `chain` table to `config` table for clarity.
+- 1b5eb0d0: `syncToPostgres` from `@latticexyz/store-sync/postgres` now uses a single table to store all records in their bytes form (`staticData`, `encodedLengths`, and `dynamicData`), more closely mirroring onchain state and enabling more scalability and stability for automatic indexing of many worlds.
+
+  The previous behavior, where schemaful SQL tables are created and populated for each MUD table, has been moved to a separate `@latticexyz/store-sync/postgres-decoded` export bundle. This approach is considered less stable and is intended to be used for analytics purposes rather than hydrating clients. Some previous metadata columns on these tables have been removed in favor of the bytes records table as the source of truth for onchain state.
+
+  This overhaul is considered breaking and we recommend starting a fresh database when syncing with either of these strategies.
+
+- 7b73f44d: Postgres storage adapter now uses snake case for decoded table names and column names. This allows for better SQL ergonomics when querying these tables.
+
+  To avoid naming conflicts for now, schemas are still case-sensitive and need to be queried with double quotes. We may change this in the future with [namespace validation](https://github.com/latticexyz/mud/issues/1991).
+
+### Minor Changes
+
+- 5df1f31b: Refactored how we fetch snapshots from an indexer, preferring the new `getLogs` endpoint and falling back to the previous `findAll` if it isn't available. This refactor also prepares for an easier entry point for adding client caching of snapshots.
+
+  The `initialState` option for various sync methods (`syncToPostgres`, `syncToRecs`, etc.) is now deprecated in favor of `initialBlockLogs`. For now, we'll automatically convert `initialState` into `initialBlockLogs`, but if you want to update your code, you can do:
+
+  ```ts
+  import { tablesWithRecordsToLogs } from "@latticexyz/store-sync";
+
+  const initialBlockLogs = {
+    blockNumber: initialState.blockNumber,
+    logs: tablesWithRecordsToLogs(initialState.tables),
+  };
+  ```
+
+- 7eabd06f: Added and populated `syncProgress` key in Zustand store for sync progress, like we do for RECS sync. This will let apps using `syncToZustand` render a loading state while initial client hydration is in progress.
+
+  ```tsx
+  const syncProgress = useStore((state) => state.syncProgress);
+
+  if (syncProgress.step !== SyncStep.LIVE) {
+    return <>Loading ({Math.floor(syncProgress.percentage)}%)</>;
+  }
+  ```
+
+### Patch Changes
+
+- 712866f5: `createStoreSync` now correctly creates table registration logs from indexer records.
+- 34203e4e: Fixed invalid value when decoding records in `postgres-decoded` storage adapter
+- Updated dependencies [1077c7f5]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [5df1f31b]
+  - @latticexyz/store@2.0.0-next.15
+  - @latticexyz/world@2.0.0-next.15
+  - @latticexyz/common@2.0.0-next.15
+  - @latticexyz/block-logs-stream@2.0.0-next.15
+  - @latticexyz/protocol-parser@2.0.0-next.15
+  - @latticexyz/recs@2.0.0-next.15
+  - @latticexyz/schema-type@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Major Changes

@@ -1,5 +1,30 @@
 # Change Log
 
+## 2.0.0-next.15
+
+### Minor Changes
+
+- 59d78c93: Added a `mud build` command that generates table libraries, system interfaces, and typed ABIs.
+
+### Patch Changes
+
+- 2699630c: Deploys will now always rebuild `IWorld.sol` interface (a workaround for https://github.com/foundry-rs/foundry/issues/6241)
+- Updated dependencies [1077c7f5]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [747d8d1b]
+- Updated dependencies [5df1f31b]
+  - @latticexyz/store@2.0.0-next.15
+  - @latticexyz/world@2.0.0-next.15
+  - @latticexyz/common@2.0.0-next.15
+  - @latticexyz/world-modules@2.0.0-next.15
+  - @latticexyz/config@2.0.0-next.15
+  - @latticexyz/protocol-parser@2.0.0-next.15
+  - @latticexyz/abi-ts@2.0.0-next.15
+  - @latticexyz/gas-report@2.0.0-next.15
+  - @latticexyz/schema-type@2.0.0-next.15
+  - @latticexyz/services@2.0.0-next.15
+  - @latticexyz/utils@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Minor Changes

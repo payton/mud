@@ -1,5 +1,30 @@
 # @latticexyz/dev-tools
 
+## 2.0.0-next.15
+
+### Patch Changes
+
+- Updated dependencies [5df1f31b]
+- Updated dependencies [504e25dc]
+- Updated dependencies [1077c7f5]
+- Updated dependencies [e48fb3b0]
+- Updated dependencies [712866f5]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [9ef3f9a7]
+- Updated dependencies [34203e4e]
+- Updated dependencies [7eabd06f]
+- Updated dependencies [5df1f31b]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [7b73f44d]
+  - @latticexyz/store-sync@2.0.0-next.15
+  - @latticexyz/store@2.0.0-next.15
+  - @latticexyz/world@2.0.0-next.15
+  - @latticexyz/common@2.0.0-next.15
+  - @latticexyz/react@2.0.0-next.15
+  - @latticexyz/recs@2.0.0-next.15
+  - @latticexyz/schema-type@2.0.0-next.15
+  - @latticexyz/utils@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Minor Changes

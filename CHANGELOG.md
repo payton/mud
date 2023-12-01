@@ -1,3 +1,148 @@
+## Version 2.0.0-next.15
+
+Release date: Fri Dec 01 2023
+
+### Major changes
+
+**[fix(store-sync,store-indexer): make last updated block number not null (#1972)](https://github.com/latticexyz/mud/commit/504e25dc83a210a1ef3b66d8487d9e292470620c)** (@latticexyz/store-sync)
+
+`lastUpdatedBlockNumber` columns in Postgres storage adapters are no longer nullable
+
+**[feat(store-indexer): clean database if outdated (#1984)](https://github.com/latticexyz/mud/commit/e48fb3b037d2ee888a8c61a6fc51721c903559e3)** (@latticexyz/store-sync)
+
+Renamed singleton `chain` table to `config` table for clarity.
+
+**[feat(store-sync,store-indexer): schemaless indexer (#1965)](https://github.com/latticexyz/mud/commit/1b5eb0d075579d2437b4329266ca37735e65ce41)** (@latticexyz/store-sync)
+
+`syncToPostgres` from `@latticexyz/store-sync/postgres` now uses a single table to store all records in their bytes form (`staticData`, `encodedLengths`, and `dynamicData`), more closely mirroring onchain state and enabling more scalability and stability for automatic indexing of many worlds.
+
+The previous behavior, where schemaful SQL tables are created and populated for each MUD table, has been moved to a separate `@latticexyz/store-sync/postgres-decoded` export bundle. This approach is considered less stable and is intended to be used for analytics purposes rather than hydrating clients. Some previous metadata columns on these tables have been removed in favor of the bytes records table as the source of truth for onchain state.
+
+This overhaul is considered breaking and we recommend starting a fresh database when syncing with either of these strategies.
+
+**[feat(store-sync): snake case postgres names in decoded tables (#1989)](https://github.com/latticexyz/mud/commit/7b73f44d98dd25483c037e76d174e30e99488bd3)** (@latticexyz/store-sync)
+
+Postgres storage adapter now uses snake case for decoded table names and column names. This allows for better SQL ergonomics when querying these tables.
+
+To avoid naming conflicts for now, schemas are still case-sensitive and need to be queried with double quotes. We may change this in the future with [namespace validation](https://github.com/latticexyz/mud/issues/1991).
+
+### Minor changes
+
+**[feat(store-sync,store-indexer): sync from getLogs indexer endpoint (#1973)](https://github.com/latticexyz/mud/commit/5df1f31bc9d35969de6f03396905778748017f38)** (@latticexyz/store-sync)
+
+Refactored how we fetch snapshots from an indexer, preferring the new `getLogs` endpoint and falling back to the previous `findAll` if it isn't available. This refactor also prepares for an easier entry point for adding client caching of snapshots.
+
+The `initialState` option for various sync methods (`syncToPostgres`, `syncToRecs`, etc.) is now deprecated in favor of `initialBlockLogs`. For now, we'll automatically convert `initialState` into `initialBlockLogs`, but if you want to update your code, you can do:
+
+```ts
+import { tablesWithRecordsToLogs } from "@latticexyz/store-sync";
+
+const initialBlockLogs = {
+  blockNumber: initialState.blockNumber,
+  logs: tablesWithRecordsToLogs(initialState.tables),
+};
+```
+
+**[feat(cli): add build command (#1990)](https://github.com/latticexyz/mud/commit/59d78c93ba80d20e5d7c4f47b9fe24575bcdc8cd)** (@latticexyz/cli)
+
+Added a `mud build` command that generates table libraries, system interfaces, and typed ABIs.
+
+**[feat(store-sync,store-indexer): schemaless indexer (#1965)](https://github.com/latticexyz/mud/commit/1b5eb0d075579d2437b4329266ca37735e65ce41)** (@latticexyz/common)
+
+Added `unique` and `groupBy` array helpers to `@latticexyz/common/utils`.
+
+```ts
+import { unique } from "@latticexyz/common/utils";
+
+unique([1, 2, 1, 4, 3, 2]);
+// [1, 2, 4, 3]
+```
+
+```ts
+import { groupBy } from "@latticexyz/common/utils";
+
+const records = [
+  { type: "cat", name: "Bob" },
+  { type: "cat", name: "Spot" },
+  { type: "dog", name: "Rover" },
+];
+Object.fromEntries(groupBy(records, (record) => record.type));
+// {
+//   "cat": [{ type: "cat", name: "Bob" }, { type: "cat", name: "Spot" }],
+//   "dog: [{ type: "dog", name: "Rover" }]
+// }
+```
+
+**[feat(store-sync,store-indexer): schemaless indexer (#1965)](https://github.com/latticexyz/mud/commit/1b5eb0d075579d2437b4329266ca37735e65ce41)** (@latticexyz/store-indexer)
+
+The `findAll` method is now considered deprecated in favor of a new `getLogs` method. This is only implemented in the Postgres indexer for now, with SQLite coming soon. The new `getLogs` method will be an easier and more robust data source to hydrate the client and other indexers and will allow us to add streaming updates from the indexer in the near future.
+
+For backwards compatibility, `findAll` is now implemented on top of `getLogs`, with record key/value decoding done in memory at request time. This may not scale for large databases, so use wisely.
+
+**[feat(store-indexer): clean database if outdated (#1984)](https://github.com/latticexyz/mud/commit/e48fb3b037d2ee888a8c61a6fc51721c903559e3)** (@latticexyz/store-indexer)
+
+When the Postgres indexer starts up, it will now attempt to detect if the database is outdated and, if so, cleans up all MUD-related schemas and tables before proceeding.
+
+**[docs: add changeset for zustand sync progress (#1931)](https://github.com/latticexyz/mud/commit/7eabd06f7af9748aba842d116f1dcd0ef5635999)** (@latticexyz/store-sync)
+
+Added and populated `syncProgress` key in Zustand store for sync progress, like we do for RECS sync. This will let apps using `syncToZustand` render a loading state while initial client hydration is in progress.
+
+```tsx
+const syncProgress = useStore((state) => state.syncProgress);
+
+if (syncProgress.step !== SyncStep.LIVE) {
+  return <>Loading ({Math.floor(syncProgress.percentage)}%)</>;
+}
+```
+
+**[feat(store-sync,store-indexer): sync from getLogs indexer endpoint (#1973)](https://github.com/latticexyz/mud/commit/5df1f31bc9d35969de6f03396905778748017f38)** (@latticexyz/common)
+
+Updated `chunk` types to use readonly arrays
+
+**[feat(store-sync,store-indexer): sync from getLogs indexer endpoint (#1973)](https://github.com/latticexyz/mud/commit/5df1f31bc9d35969de6f03396905778748017f38)** (@latticexyz/store-indexer)
+
+Added `getLogs` query support to sqlite indexer
+
+**[build: add bun to dev deps and dockerfile (#1902)](https://github.com/latticexyz/mud/commit/7b3181bdba59c1b83c14b0a17229a17aa94ae47e)** (@latticexyz/store-indexer)
+
+Added `STORE_ADDRESS` environment variable to index only a specific MUD Store.
+
+### Patch changes
+
+**[fix(store-sync,store-indexer): make last updated block number not null (#1972)](https://github.com/latticexyz/mud/commit/504e25dc83a210a1ef3b66d8487d9e292470620c)** (@latticexyz/store-indexer)
+
+Records are now ordered by `lastUpdatedBlockNumber` at the Postgres SQL query level
+
+**[fix(store,world): fix mud config TS errors (#1974)](https://github.com/latticexyz/mud/commit/1077c7f53b6c0d6ea7663fe2722b0e768d407741)** (@latticexyz/store, @latticexyz/world)
+
+Fixed an issue where `mud.config.ts` source file was not included in the package, causing TS errors downstream.
+
+**[fix(store-sync): create table registration logs from indexer records (#1919)](https://github.com/latticexyz/mud/commit/712866f5fb392a4e39b59cd4565da61adc3c005f)** (@latticexyz/store-sync)
+
+`createStoreSync` now correctly creates table registration logs from indexer records.
+
+**[fix(create-mud): include `.gitignore` files in created projects (#1945)](https://github.com/latticexyz/mud/commit/6963a9e85ea97b47be2edd199afa98100f728cf1)** (create-mud)
+
+Templates now correctly include their respective `.gitignore` files
+
+**[fix(cli): always rebuild IWorld ABI (#1929)](https://github.com/latticexyz/mud/commit/2699630c0e0c2027f331a9defe7f90a8968f7b3d)** (@latticexyz/cli)
+
+Deploys will now always rebuild `IWorld.sol` interface (a workaround for https://github.com/foundry-rs/foundry/issues/6241)
+
+**[fix(world-modules): rename token address fields (#1986)](https://github.com/latticexyz/mud/commit/747d8d1b819882c1f84b8029fd4ade669f772322)** (@latticexyz/world-modules)
+
+Renamed token address fields in ERC20 and ERC721 modules to `tokenAddress`
+
+**[fix(react): trigger useComponentValue on deleted records (#1959)](https://github.com/latticexyz/mud/commit/9ef3f9a7c2ea52778027fb61988f876b590b22b0)** (@latticexyz/react)
+
+Fixed an issue where `useComponentValue` would not detect a change and re-render if the component value was immediately removed.
+
+**[fix(store-sync): use dynamic data in postgres decoded indexer (#1983)](https://github.com/latticexyz/mud/commit/34203e4ed88c2aa79f994b99a96be4fcff21ca06)** (@latticexyz/store-sync)
+
+Fixed invalid value when decoding records in `postgres-decoded` storage adapter
+
+---
+
 ## Version 2.0.0-next.14
 
 Release date: Fri Nov 10 2023

@@ -1,5 +1,16 @@
 # Change Log
 
+## 2.0.0-next.15
+
+### Patch Changes
+
+- 1077c7f5: Fixed an issue where `mud.config.ts` source file was not included in the package, causing TS errors downstream.
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [5df1f31b]
+  - @latticexyz/common@2.0.0-next.15
+  - @latticexyz/config@2.0.0-next.15
+  - @latticexyz/schema-type@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Patch Changes

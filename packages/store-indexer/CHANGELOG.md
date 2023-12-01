@@ -1,5 +1,36 @@
 # @latticexyz/store-indexer
 
+## 2.0.0-next.15
+
+### Minor Changes
+
+- 1b5eb0d0: The `findAll` method is now considered deprecated in favor of a new `getLogs` method. This is only implemented in the Postgres indexer for now, with SQLite coming soon. The new `getLogs` method will be an easier and more robust data source to hydrate the client and other indexers and will allow us to add streaming updates from the indexer in the near future.
+
+  For backwards compatibility, `findAll` is now implemented on top of `getLogs`, with record key/value decoding done in memory at request time. This may not scale for large databases, so use wisely.
+
+- e48fb3b0: When the Postgres indexer starts up, it will now attempt to detect if the database is outdated and, if so, cleans up all MUD-related schemas and tables before proceeding.
+- 5df1f31b: Added `getLogs` query support to sqlite indexer
+
+### Patch Changes
+
+- 504e25dc: Records are now ordered by `lastUpdatedBlockNumber` at the Postgres SQL query level
+- Updated dependencies [5df1f31b]
+- Updated dependencies [504e25dc]
+- Updated dependencies [1077c7f5]
+- Updated dependencies [e48fb3b0]
+- Updated dependencies [712866f5]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [34203e4e]
+- Updated dependencies [7eabd06f]
+- Updated dependencies [5df1f31b]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [7b73f44d]
+  - @latticexyz/store-sync@2.0.0-next.15
+  - @latticexyz/store@2.0.0-next.15
+  - @latticexyz/common@2.0.0-next.15
+  - @latticexyz/block-logs-stream@2.0.0-next.15
+  - @latticexyz/protocol-parser@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Major Changes

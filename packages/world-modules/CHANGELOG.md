@@ -1,5 +1,19 @@
 # Change Log
 
+## 2.0.0-next.15
+
+### Patch Changes
+
+- 747d8d1b: Renamed token address fields in ERC20 and ERC721 modules to `tokenAddress`
+- Updated dependencies [1077c7f5]
+- Updated dependencies [1b5eb0d0]
+- Updated dependencies [5df1f31b]
+  - @latticexyz/store@2.0.0-next.15
+  - @latticexyz/world@2.0.0-next.15
+  - @latticexyz/common@2.0.0-next.15
+  - @latticexyz/config@2.0.0-next.15
+  - @latticexyz/schema-type@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Minor Changes

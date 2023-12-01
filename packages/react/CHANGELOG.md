@@ -1,5 +1,14 @@
 # Change Log
 
+## 2.0.0-next.15
+
+### Patch Changes
+
+- 9ef3f9a7: Fixed an issue where `useComponentValue` would not detect a change and re-render if the component value was immediately removed.
+- Updated dependencies [1077c7f5]
+  - @latticexyz/store@2.0.0-next.15
+  - @latticexyz/recs@2.0.0-next.15
+
 ## 2.0.0-next.14
 
 ### Patch Changes
