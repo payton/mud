@@ -5,7 +5,8 @@ SELECT
         encode(
             COALESCE(
                 orb_balances.account,
-                season_pass_balances.account
+                season_pass_balances.account,
+                matches_joined.account
             ),
             'hex'
         )
@@ -15,7 +16,7 @@ SELECT
         WHEN season_pass_balances.value IS NULL THEN FALSE
         ELSE TRUE
     END season_pass_holder,
-    COALESCE(MatchesJoined.matches_joined, 0) as matches_joined
+    COALESCE(matches_joined.matches_joined, 0) as matches_joined
 FROM
     "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__SeasonPass".balances AS season_pass_balances FULL
     OUTER JOIN (
@@ -54,7 +55,7 @@ FROM
             owned_by.value
         ORDER BY
             matches_joined DESC
-    ) AS MatchesJoined ON MatchesJoined.account = COALESCE(
+    ) AS matches_joined ON matches_joined.account = COALESCE(
         orb_balances.account,
         season_pass_balances.account
     )
