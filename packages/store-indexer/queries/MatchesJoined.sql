@@ -1,18 +1,18 @@
 -- Gives the number of matches joined for each owner
 SET
-    search_path TO "0x7203e7ADfDF38519e1ff4f8Da7DCdC969371f377__";
+    search_path TO "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__";
 
 SELECT
     concat(
         '0x',
-        encode(SUBSTRING("OwnedBy".value, 13), 'hex')
+        encode(SUBSTRING(owned_by.value, 13), 'hex')
     ) AS account,
     COUNT(*) AS matches_joined
 FROM
-    "SpawnReservedBy"
-    INNER JOIN "OwnedBy" ON "SpawnReservedBy"."matchEntity" = "OwnedBy"."matchEntity"
-    AND "SpawnReservedBy".value = "OwnedBy".entity
+    spawn_reserved_by
+    INNER JOIN owned_by ON spawn_reserved_by.match_entity = owned_by.match_entity
+    AND spawn_reserved_by.value = owned_by.entity
 GROUP BY
-    "OwnedBy".value
+    owned_by.value
 ORDER BY
     matches_joined DESC;

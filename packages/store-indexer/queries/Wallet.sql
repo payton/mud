@@ -4,23 +4,23 @@ SELECT
         '0x',
         encode(
             COALESCE(
-                OrbBalances.account,
+                orb_balances.account,
                 season_pass_balances.account
             ),
             'hex'
         )
     ) AS "account",
-    COALESCE(OrbBalances.value, 0) / 1000000000000000000 AS orb_balance,
+    COALESCE(orb_balances.value, 0) / 1000000000000000000 AS orb_balance,
     CASE
         WHEN season_pass_balances.value IS NULL THEN FALSE
         ELSE TRUE
     END season_pass_holder,
     COALESCE(MatchesJoined.matches_joined, 0) as matches_joined
 FROM
-    "0x7203e7ADfDF38519e1ff4f8Da7DCdC969371f377__SeasonPass"."Balances" AS season_pass_balances FULL
+    "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__SeasonPass".balances AS season_pass_balances FULL
     OUTER JOIN (
         -- Get each accounts most recent orb balance
-        WITH OrbBalances AS (
+        WITH orb_balances AS (
             SELECT
                 account,
                 value,
@@ -30,33 +30,33 @@ FROM
                         __last_updated_block_number DESC
                 ) AS RowNum
             FROM
-                "0x7203e7ADfDF38519e1ff4f8Da7DCdC969371f377__Orb"."Balances"
+                "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__Orb".balances
         )
         SELECT
             account,
             value
         FROM
-            OrbBalances
+            orb_balances
         WHERE
             RowNum = 1
             AND value <> 0
-    ) AS OrbBalances ON OrbBalances.account = season_pass_balances.account FULL
+    ) AS orb_balances ON orb_balances.account = season_pass_balances.account FULL
     OUTER JOIN (
         -- Get the number of matches joined by each account
         SELECT
-            SUBSTRING("OwnedBy".value, 13) AS account,
+            SUBSTRING(owned_by.value, 13) AS account,
             COUNT(*) AS matches_joined
         FROM
-            "SpawnReservedBy"
-            INNER JOIN "OwnedBy" ON "SpawnReservedBy"."matchEntity" = "OwnedBy"."matchEntity"
-            AND "SpawnReservedBy".value = "OwnedBy".entity
+            spawn_reserved_by
+            INNER JOIN owned_by ON spawn_reserved_by.match_entity = owned_by.match_entity
+            AND spawn_reserved_by.value = owned_by.entity
         GROUP BY
-            "OwnedBy".value
+            owned_by.value
         ORDER BY
             matches_joined DESC
     ) AS MatchesJoined ON MatchesJoined.account = COALESCE(
-        OrbBalances.account,
+        orb_balances.account,
         season_pass_balances.account
     )
 ORDER BY
-    COALESCE(OrbBalances.value, 0) DESC;
+    COALESCE(orb_balances.value, 0) DESC;

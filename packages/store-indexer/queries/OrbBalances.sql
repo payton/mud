@@ -1,3 +1,4 @@
+-- Gives the number of orbs currently owned by each owner
 WITH OrbBalances AS (
     SELECT
         Account,
@@ -8,7 +9,7 @@ WITH OrbBalances AS (
                 __last_updated_block_number DESC
         ) AS RowNum
     FROM
-        "0x7203e7ADfDF38519e1ff4f8Da7DCdC969371f377__Orb"."Balances"
+        "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__Orb".balances
 )
 SELECT
     concat('0x', encode(account, 'hex')) AS "account",
